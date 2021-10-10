@@ -8,3 +8,10 @@ edition = "2018"
 [dependencies]
 atomic-arena = { git = "https://github.com/tesselode/atomic-arena", rev = "4b467577" }
 ringbuf = "0.2.3"
+symphonia = { version = "0.4.0", default-features = false, optional = true }
+
+[features]
+mp3 = ["symphonia/mp3"]
+ogg = ["symphonia/ogg", "symphonia/vorbis"]
+flac = ["symphonia/flac"]
+wav = ["symphonia/wav"]
