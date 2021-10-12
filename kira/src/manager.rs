@@ -18,10 +18,6 @@ use crate::{
 	clock::{Clock, ClockHandle, ClockId},
 	error::CommandError,
 	parameter::{Parameter, ParameterHandle, ParameterId, Tween},
-	sound::{
-		wrapper::{SoundWrapper, SoundWrapperShared},
-		Sound, SoundHandle, SoundId,
-	},
 	track::{SubTrackId, Track, TrackHandle, TrackId, TrackSettings},
 	value::Value,
 };
@@ -29,11 +25,9 @@ use crate::{
 use self::{
 	command::{
 		producer::CommandProducer, AudioStreamCommand, ClockCommand, Command, MixerCommand,
-		ParameterCommand, SoundCommand,
+		ParameterCommand,
 	},
-	error::{
-		AddAudioStreamError, AddClockError, AddParameterError, AddSoundError, AddSubTrackError,
-	},
+	error::{AddAudioStreamError, AddClockError, AddParameterError, AddSubTrackError},
 	renderer::context::Context,
 	resources::{create_resources, create_unused_resource_channels, ResourceControllers},
 };
@@ -110,32 +104,6 @@ impl<B: Backend> AudioManager<B> {
 	/// Returns the current playback state of the [`Renderer`].
 	pub fn state(&self) -> RendererState {
 		self.context.state()
-	}
-
-	/// Sends a sound to the renderer and returns a handle to the sound.
-	pub fn add_sound(&mut self, sound: impl Sound + 'static) -> Result<SoundHandle, AddSoundError> {
-		let id = SoundId(
-			self.resource_controllers
-				.sound_controller
-				.try_reserve()
-				.map_err(|_| AddSoundError::SoundLimitReached)?,
-		);
-		let sound: Arc<dyn Sound> = Arc::new(sound);
-		let shared = Arc::new(SoundWrapperShared::new());
-		let sound_wrapper = SoundWrapper {
-			sound: sound.clone(),
-			shared: shared.clone(),
-		};
-		let handle = SoundHandle {
-			id,
-			sound,
-			shared,
-			instance_controller: self.resource_controllers.instance_controller.clone(),
-			command_producer: self.command_producer.clone(),
-		};
-		self.command_producer
-			.push(Command::Sound(SoundCommand::Add(id, sound_wrapper)))?;
-		Ok(handle)
 	}
 
 	/// Creates a parameter with the specified starting value.
