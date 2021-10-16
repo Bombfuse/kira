@@ -1,6 +1,5 @@
 //! # Kira
 
-#![warn(missing_docs)]
 #![allow(clippy::collapsible_if)]
 #![allow(clippy::collapsible_else_if)]
 #![allow(clippy::large_enum_variant)]
@@ -12,6 +11,7 @@ mod frame;
 mod loop_behavior;
 pub mod manager;
 pub mod parameter;
+pub mod sound;
 mod start_time;
 pub mod track;
 pub mod util;
