@@ -17,7 +17,9 @@ use crate::{
 	audio_stream::{AudioStream, AudioStreamHandle, AudioStreamId, AudioStreamWrapper},
 	clock::{Clock, ClockHandle, ClockId},
 	error::CommandError,
+	manager::command::SoundCommand,
 	parameter::{Parameter, ParameterHandle, ParameterId, Tween},
+	sound::{player::SoundPlayer, Sound, SoundId},
 	track::{SubTrackId, Track, TrackHandle, TrackId, TrackSettings},
 	value::Value,
 };
@@ -27,7 +29,9 @@ use self::{
 		producer::CommandProducer, AudioStreamCommand, ClockCommand, Command, MixerCommand,
 		ParameterCommand,
 	},
-	error::{AddAudioStreamError, AddClockError, AddParameterError, AddSubTrackError},
+	error::{
+		AddAudioStreamError, AddClockError, AddParameterError, AddSubTrackError, PlaySoundError,
+	},
 	renderer::context::Context,
 	resources::{create_resources, create_unused_resource_channels, ResourceControllers},
 };
@@ -41,8 +45,6 @@ pub struct AudioManagerSettings {
 	pub command_capacity: usize,
 	/// The maximum number of sounds that can be loaded at a time.
 	pub sound_capacity: usize,
-	/// The maximum number of instances of sounds that can be playing at a time.
-	pub instance_capacity: usize,
 	/// The maximum number of parameters that can exist at a time.
 	pub parameter_capacity: usize,
 	/// The maximum number of mixer sub-tracks that can exist at a time.
@@ -58,7 +60,6 @@ impl Default for AudioManagerSettings {
 		Self {
 			sound_capacity: 100,
 			command_capacity: 100,
-			instance_capacity: 100,
 			parameter_capacity: 100,
 			sub_track_capacity: 100,
 			clock_capacity: 1,
@@ -104,6 +105,19 @@ impl<B: Backend> AudioManager<B> {
 	/// Returns the current playback state of the [`Renderer`].
 	pub fn state(&self) -> RendererState {
 		self.context.state()
+	}
+
+	pub fn play(&mut self, sound: impl Sound + 'static) -> Result<(), PlaySoundError> {
+		let id = SoundId(
+			self.resource_controllers
+				.sound_player_controller
+				.try_reserve()
+				.map_err(|_| PlaySoundError::SoundLimitReached)?,
+		);
+		let sound_player = SoundPlayer::new(Box::new(sound));
+		self.command_producer
+			.push(Command::Sound(SoundCommand::Add(id, sound_player)))?;
+		Ok(())
 	}
 
 	/// Creates a parameter with the specified starting value.

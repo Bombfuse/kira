@@ -6,7 +6,7 @@ pub use settings::*;
 
 use crate::{frame::Frame, loop_behavior::LoopBehavior, util};
 
-use std::time::Duration;
+use std::{sync::Arc, time::Duration};
 
 use super::Sound;
 
@@ -14,7 +14,7 @@ use super::Sound;
 pub struct StaticSound {
 	sample_rate: u32,
 	duration: Duration,
-	frames: Vec<Frame>,
+	frames: Arc<Vec<Frame>>,
 	default_loop_behavior: Option<LoopBehavior>,
 }
 
@@ -28,7 +28,7 @@ impl StaticSound {
 		let duration = Duration::from_secs_f64(frames.len() as f64 / sample_rate as f64);
 		Self {
 			sample_rate,
-			frames,
+			frames: Arc::new(frames),
 			duration,
 			default_loop_behavior: settings.default_loop_behavior,
 		}
