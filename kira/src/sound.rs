@@ -49,10 +49,19 @@ impl SoundState {
 	}
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct PlaybackInfo {
+	pub state: SoundState,
+	pub position: f64,
+}
+
+#[allow(unused_variables)]
 pub trait Sound: Send + Sync {
 	fn duration(&mut self) -> Duration;
 
 	fn default_loop_behavior(&mut self) -> Option<LoopBehavior>;
+
+	fn report_playback_info(&mut self, playback_info: PlaybackInfo) {}
 
 	fn frame_at_position(&mut self, position: f64) -> Frame;
 }

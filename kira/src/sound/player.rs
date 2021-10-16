@@ -3,7 +3,7 @@ mod test;
 
 use crate::Frame;
 
-use super::{Sound, SoundState};
+use super::{PlaybackInfo, Sound, SoundState};
 
 pub(crate) struct SoundPlayer {
 	sound: Box<dyn Sound>,
@@ -22,6 +22,13 @@ impl SoundPlayer {
 
 	pub fn state(&self) -> SoundState {
 		self.state
+	}
+
+	pub fn on_start_processing(&mut self) {
+		self.sound.report_playback_info(PlaybackInfo {
+			state: self.state,
+			position: self.position,
+		});
 	}
 
 	pub fn process(&mut self, dt: f64) -> Frame {
