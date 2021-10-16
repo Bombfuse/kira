@@ -1,4 +1,4 @@
-use crate::{manager::resources::mixer::Mixer, track::TrackId};
+use crate::Frame;
 
 use super::{Sound, SoundState};
 
@@ -21,13 +21,12 @@ impl SoundPlayer {
 		self.state
 	}
 
-	pub fn process(&mut self, dt: f64, mixer: &mut Mixer) {
-		if let Some(track) = mixer.track_mut(TrackId::Main) {
-			track.add_input(self.sound.frame_at_position(self.position));
-			self.position += dt;
-			if self.position > self.sound.duration().as_secs_f64() {
-				self.state = SoundState::Stopped;
-			}
+	pub fn process(&mut self, dt: f64) -> Frame {
+		let out = self.sound.frame_at_position(self.position);
+		self.position += dt;
+		if self.position > self.sound.duration().as_secs_f64() {
+			self.state = SoundState::Stopped;
 		}
+		out
 	}
 }

@@ -4,6 +4,7 @@ use ringbuf::Producer;
 use crate::{
 	manager::command::SoundCommand,
 	sound::{player::SoundPlayer, SoundState},
+	track::TrackId,
 };
 
 use super::mixer::Mixer;
@@ -65,7 +66,9 @@ impl SoundPlayers {
 
 	pub fn process(&mut self, dt: f64, mixer: &mut Mixer) {
 		for (_, sound_player) in &mut self.sound_players {
-			sound_player.process(dt, mixer);
+			if let Some(track) = mixer.track_mut(TrackId::Main) {
+				track.add_input(sound_player.process(dt));
+			}
 		}
 	}
 }
