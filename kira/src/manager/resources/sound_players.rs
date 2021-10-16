@@ -56,7 +56,7 @@ impl SoundPlayers {
 
 	pub fn run_command(&mut self, command: SoundCommand) {
 		match command {
-			SoundCommand::Add(id, sound_player) => {
+			SoundCommand::Play(id, sound_player) => {
 				self.sound_players
 					.insert_with_index(id.0, sound_player)
 					.expect("Sound player arena is full");

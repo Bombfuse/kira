@@ -116,7 +116,7 @@ impl<B: Backend> AudioManager<B> {
 		);
 		let sound_player = SoundPlayer::new(Box::new(sound));
 		self.command_producer
-			.push(Command::Sound(SoundCommand::Add(id, sound_player)))?;
+			.push(Command::Sound(SoundCommand::Play(id, sound_player)))?;
 		Ok(())
 	}
 

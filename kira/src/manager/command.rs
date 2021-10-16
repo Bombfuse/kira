@@ -10,7 +10,7 @@ use crate::{
 };
 
 pub(crate) enum SoundCommand {
-	Add(SoundId, SoundPlayer),
+	Play(SoundId, SoundPlayer),
 }
 
 pub(crate) enum ParameterCommand {
